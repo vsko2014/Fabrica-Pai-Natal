@@ -1,7 +1,7 @@
 # natal-project — Requisitos aplicacionais e especificação para implementação
 
-**Versão:** 1.0  
-**Estado:** Especificação inicial pronta para iniciar o desenvolvimento  
+**Versão:** 1.0
+**Estado:** Especificação inicial pronta para iniciar o desenvolvimento
 **Objetivo:** Aplicação web privada para gerir listas de sugestões de prendas de Natal de um grupo de 10 utilizadores.
 
 ---
