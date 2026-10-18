@@ -24,7 +24,7 @@ Preencher `.env.local` com:
 | --- | --- |
 | `BETTER_AUTH_URL` | URL base da aplicação, por exemplo `http://localhost:3000` localmente |
 | `BETTER_AUTH_SECRET` | Segredo aleatório forte do Better Auth |
-| `DATABASE_URL` | URL PostgreSQL do Supabase |
+| `DATABASE_URL` | URL PostgreSQL do Supabase; na Vercel, usar o Transaction Pooler |
 | `SUPABASE_URL` | URL do projeto Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | Chave privilegiada, usada apenas no servidor |
 | `SUPABASE_STORAGE_BUCKET` | Nome do bucket privado; o valor predefinido é `gifts` |
@@ -173,6 +173,10 @@ Depois de atualizar a aplicação, aplica as novas alterações à base de dados
    dados.
 3. Publicar o repositório na Vercel com o plano Hobby e configurar as variáveis
    de ambiente acima nos ambientes usados.
+   Para `DATABASE_URL`, usar a connection string **Transaction pooler** do
+   Supabase (porta `6543`), não o pooler em modo Session. A aplicação limita a
+   uma ligação por instância de produção e desativa prepared statements para
+   ser compatível com o Transaction pooler.
 4. Definir `BETTER_AUTH_URL` para o URL HTTPS `*.vercel.app` atribuído ao
    projeto; usar o mesmo domínio como origem confiável do Better Auth.
 5. Executar `npm run lint`, `npm run typecheck`, os testes E2E e `npm run build`.
