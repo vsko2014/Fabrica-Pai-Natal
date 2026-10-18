@@ -16,11 +16,7 @@ function createDb(): PostgresJsDatabase<typeof schema> {
     );
   }
   const sql =
-    globalForDb.sql ??
-    postgres(connectionString, {
-      max: process.env.NODE_ENV === "production" ? 1 : 10,
-      prepare: false,
-    });
+    globalForDb.sql ?? postgres(connectionString, { max: 10 });
   if (process.env.NODE_ENV !== "production") {
     globalForDb.sql = sql;
   }
