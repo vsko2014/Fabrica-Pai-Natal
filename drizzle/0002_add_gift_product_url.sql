@@ -1,0 +1,1 @@
+ALTER TABLE "gifts" ADD COLUMN "product_url" text;

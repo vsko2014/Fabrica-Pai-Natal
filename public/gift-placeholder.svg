@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="title">
+  <title id="title">Prenda FPN</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#173d2c"/>
+      <stop offset="1" stop-color="#0b241a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="400" cy="270" r="120" fill="#d4b15b" fill-opacity=".12"/>
+  <path d="M270 255h260v180H270z" rx="12" fill="#d4b15b"/>
+  <path d="M380 255h40v180h-40zM270 315h260v38H270z" fill="#a94444"/>
+  <path d="M400 255c-68-12-88-60-56-77 31-16 56 29 56 77Zm0 0c68-12 88-60 56-77-31-16-56 29-56 77Z" fill="none" stroke="#f4e6bc" stroke-width="18" stroke-linecap="round"/>
+  <text x="400" y="505" fill="#f3efe5" font-family="Arial,sans-serif" font-size="34" font-weight="700" text-anchor="middle">FPN</text>
+</svg>

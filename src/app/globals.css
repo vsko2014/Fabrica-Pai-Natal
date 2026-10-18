@@ -1,26 +1,113 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-fpn-green: #1a472a;
+  --color-fpn-green-light: #2d5a3d;
+  --color-fpn-red: #c41e3a;
+  --color-fpn-red-dark: #8b0000;
+  --color-fpn-gold: #d4af37;
+  --color-fpn-cream: #fffdd0;
+  --color-fpn-snow: #f8f8ff;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --animate-snow: snow-fall linear infinite;
+  --animate-twinkle: twinkle 2s ease-in-out infinite;
+  --animate-holiday-neon: holiday-neon 2.4s ease-in-out infinite;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  @keyframes snow-fall {
+    0% {
+      transform: translateY(-10vh);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh);
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes holiday-neon {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px rgb(212 175 55 / 55%),
+        0 0 8px rgb(196 30 58 / 45%),
+        0 0 16px rgb(26 71 42 / 35%);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgb(248 248 255 / 75%),
+        0 0 12px rgb(212 175 55 / 75%),
+        0 0 24px rgb(196 30 58 / 55%);
+    }
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, #0d2818 0%, #1a472a 100%);
+  background-attachment: fixed;
+  color: #f8f8ff;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}
+
+@layer utilities {
+  .animate-snow {
+    animation: var(--animate-snow);
+  }
+
+  .animate-twinkle {
+    animation: var(--animate-twinkle);
+  }
+
+  .holiday-neon {
+    animation: var(--animate-holiday-neon);
+    border: 1px solid rgb(212 175 55 / 65%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-snow,
+  .animate-twinkle,
+  .holiday-neon {
+    animation: none;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d2818;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a472a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2d5a3d;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-fpn-gold);
+  outline-offset: 2px;
 }

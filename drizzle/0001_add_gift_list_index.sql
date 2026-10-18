@@ -1,0 +1,1 @@
+CREATE INDEX "gifts_user_id_created_at_idx" ON "gifts" USING btree ("user_id","created_at");
