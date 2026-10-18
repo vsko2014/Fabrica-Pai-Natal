@@ -119,7 +119,6 @@ export function GiftCard({ gift, currentUserId, tourTarget }: Props) {
               href={gift.productUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(event) => event.stopPropagation()}
               className="pointer-events-auto relative z-30 mb-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-fpn-snow/80 transition-colors hover:bg-white/10 hover:text-fpn-cream"
             >
               Ver página
