@@ -47,6 +47,15 @@ export async function POST(request: Request) {
     }
     console.error("[product-image] Image lookup failed.", {
       name: error instanceof Error ? error.name : "UnknownError",
+      message:
+        error instanceof Error
+          ? error.message.replace(/https?:\/\/\S+/g, "[URL]").slice(0, 240)
+          : "Unknown error",
+      code:
+        error && typeof error === "object" && "code" in error &&
+        typeof error.code === "string"
+          ? error.code
+          : undefined,
     });
     return Response.json(
       { error: "Não foi possível consultar este site. Tente novamente." },

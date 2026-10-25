@@ -2,6 +2,8 @@ import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
+import { createBrotliDecompress, createGunzip, createInflate } from "node:zlib";
+import type { Readable } from "node:stream";
 import { MAX_GIFT_IMAGE_SIZE } from "./gift-constants";
 
 const MAX_PAGE_SIZE = 2 * 1024 * 1024;
@@ -147,8 +149,12 @@ function requestExternal(
           accept: "text/html,image/jpeg,image/png,image/webp,*/*;q=0.1",
           "accept-encoding": "identity",
         },
-        lookup: (_hostname, _options, callback) => {
-          callback(null, address.address, address.family);
+        lookup: (_hostname, options, callback) => {
+          if (typeof options === "object" && options !== null && options.all) {
+            callback(null, [address]);
+          } else {
+            callback(null, address.address, address.family);
+          }
         },
         servername: isIP(url.hostname.replace(/^\[|\]$/g, ""))
           ? undefined
@@ -172,8 +178,17 @@ function requestExternal(
           return;
         }
 
-        const encoding = response.headers["content-encoding"];
-        if (encoding && encoding !== "identity") {
+        const encoding = (response.headers["content-encoding"] ?? "identity")
+          .trim()
+          .toLowerCase();
+        let bodyStream: Readable = response;
+        if (encoding === "gzip" || encoding === "x-gzip") {
+          bodyStream = response.pipe(createGunzip());
+        } else if (encoding === "deflate") {
+          bodyStream = response.pipe(createInflate());
+        } else if (encoding === "br") {
+          bodyStream = response.pipe(createBrotliDecompress());
+        } else if (encoding !== "identity") {
           response.resume();
           reject(new ProductImageLookupError("A resposta do site não é válida."));
           return;
@@ -187,16 +202,25 @@ function requestExternal(
 
         const chunks: Buffer[] = [];
         let size = 0;
+        let transferredSize = 0;
         response.on("data", (chunk: Buffer | string) => {
+          transferredSize += Buffer.isBuffer(chunk) ? chunk.length : Buffer.byteLength(chunk);
+          if (transferredSize > maxSize) {
+            response.destroy(new ProductImageLookupError("A imagem ou página é demasiado grande."));
+          }
+        });
+        bodyStream.on("data", (chunk: Buffer | string) => {
           const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
           size += buffer.length;
           if (size > maxSize) {
-            response.destroy(new ProductImageLookupError("A imagem ou página é demasiado grande."));
+            bodyStream.destroy(
+              new ProductImageLookupError("A imagem ou página é demasiado grande.")
+            );
             return;
           }
           chunks.push(buffer);
         });
-        response.on("end", () => {
+        bodyStream.on("end", () => {
           resolve({
             body: Buffer.concat(chunks),
             contentType: (response.headers["content-type"] ?? "")
@@ -205,7 +229,8 @@ function requestExternal(
               .toLowerCase(),
           });
         });
-        response.on("error", reject);
+        bodyStream.on("error", reject);
+        if (bodyStream !== response) response.on("error", reject);
       }
     );
 
