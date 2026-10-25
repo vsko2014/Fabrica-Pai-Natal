@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createGiftAction } from "@/app/actions/gift-actions";
 import { GiftStatusHelp } from "./GiftStatusHelp";
 import { AlertModal } from "@/components/ui/AlertModal";
+import { ProductImageFinder } from "./ProductImageFinder";
 import {
   MAX_GIFT_IMAGE_SIZE,
   MAX_GIFT_IMAGE_SIZE_LABEL,
@@ -32,6 +33,8 @@ export function NewGiftForm({ users, initialListType }: Props) {
   const [isPending, startTransition] = useTransition();
   const [alert, setAlert] = useState<{ message: string; kind: "info" | "error" } | null>(null);
   const [listType, setListType] = useState(initialListType);
+  const [productUrl, setProductUrl] = useState("");
+  const [selectedProductImage, setSelectedProductImage] = useState<File | null>(null);
   const imageRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -56,16 +59,26 @@ export function NewGiftForm({ users, initialListType }: Props) {
     }
 
     const formData = new FormData(e.currentTarget);
+    if (selectedProductImage) {
+      formData.set("image", selectedProductImage);
+    }
     startTransition(async () => {
       const nextState = await createGiftAction(state, formData);
       setState(nextState);
       if (nextState.success) {
         formRef.current?.reset();
+        setProductUrl("");
+        setSelectedProductImage(null);
         setAlert({ message: "Prenda guardada com sucesso.", kind: "info" });
       } else if (nextState.error) {
         setAlert({ message: nextState.error, kind: "error" });
       }
     });
+  }
+
+  function chooseProductImage(file: File | null) {
+    if (file && imageRef.current) imageRef.current.value = "";
+    setSelectedProductImage(file);
   }
 
   function closeAlert() {
@@ -175,8 +188,19 @@ export function NewGiftForm({ users, initialListType }: Props) {
           inputMode="url"
           autoComplete="url"
           maxLength={2048}
+          value={productUrl}
+          onChange={(event) => {
+            setProductUrl(event.target.value);
+            setSelectedProductImage(null);
+          }}
           className="min-h-11 w-full rounded-lg border border-fpn-gold/30 bg-white/10 px-3 py-2 text-white placeholder-white/40 focus:border-fpn-gold focus:outline-none"
           placeholder="https://loja.pt/pagina-da-prenda"
+        />
+        <ProductImageFinder
+          key={productUrl}
+          productUrl={productUrl}
+          selectedImage={selectedProductImage}
+          onImageSelected={chooseProductImage}
         />
       </div>
 
@@ -231,6 +255,7 @@ export function NewGiftForm({ users, initialListType }: Props) {
           type="file"
           ref={imageRef}
           accept="image/jpeg,image/png,image/webp"
+          onChange={() => setSelectedProductImage(null)}
           className="w-full text-sm text-fpn-snow/70 file:mr-3 file:rounded-lg file:border-0 file:bg-fpn-gold file:px-4 file:py-2 file:text-sm file:font-medium file:text-fpn-green hover:file:bg-fpn-cream"
         />
         <p className="mt-1 text-xs text-fpn-snow/50">

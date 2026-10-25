@@ -11,6 +11,7 @@ Developed as a personal project to practise software engineering, explore modern
 - 🎁 Create and manage personal gift wishlists.
 - 👨‍👩‍👧‍👦 Explore gift suggestions from family members.
 - 🖼️ Add images, prices, and product links.
+- 🔎 Preview product images fetched from a product URL before choosing to save them.
 - 🔐 Private authentication and access control.
 - 📱 Responsive interface with a Christmas-inspired design.
 

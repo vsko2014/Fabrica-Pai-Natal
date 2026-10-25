@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,6 +10,7 @@ import {
 } from "@/app/actions/gift-actions";
 import { GiftStatusHelp } from "./GiftStatusHelp";
 import { AlertModal } from "@/components/ui/AlertModal";
+import { ProductImageFinder } from "./ProductImageFinder";
 import {
   MAX_GIFT_IMAGE_SIZE,
   MAX_GIFT_IMAGE_SIZE_LABEL,
@@ -38,10 +39,16 @@ export function GiftEditForm({ gift, users }: Props) {
   const [isPending, startTransition] = useTransition();
   const [alert, setAlert] = useState<{ message: string; kind: "info" | "error" } | null>(null);
   const [listType, setListType] = useState(gift.listType);
+  const [productUrl, setProductUrl] = useState(gift.productUrl ?? "");
+  const [selectedProductImage, setSelectedProductImage] = useState<File | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    if (selectedProductImage) {
+      formData.set("image", selectedProductImage);
+    }
     startTransition(async () => {
       const nextState = await updateGiftAction(gift.id, state, formData);
       setState(nextState);
@@ -63,6 +70,7 @@ export function GiftEditForm({ gift, users }: Props) {
   }
 
   function validateImage(event: React.ChangeEvent<HTMLInputElement>) {
+    setSelectedProductImage(null);
     const image = event.target.files?.[0];
     if (!image) return;
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
@@ -73,6 +81,11 @@ export function GiftEditForm({ gift, users }: Props) {
         kind: "error",
       });
     }
+  }
+
+  function chooseProductImage(file: File | null) {
+    if (file && imageInputRef.current) imageInputRef.current.value = "";
+    setSelectedProductImage(file);
   }
 
   return (
@@ -173,8 +186,18 @@ export function GiftEditForm({ gift, users }: Props) {
           name="productUrl"
           type="url"
           maxLength={2048}
-          defaultValue={gift.productUrl ?? ""}
+          value={productUrl}
+          onChange={(event) => {
+            setProductUrl(event.target.value);
+            setSelectedProductImage(null);
+          }}
           className="min-h-11 w-full rounded-lg border border-fpn-gold/30 bg-white/10 px-3 py-2 text-white focus:border-fpn-gold focus:outline-none"
+        />
+        <ProductImageFinder
+          key={productUrl}
+          productUrl={productUrl}
+          selectedImage={selectedProductImage}
+          onImageSelected={chooseProductImage}
         />
       </div>
 
@@ -223,6 +246,7 @@ export function GiftEditForm({ gift, users }: Props) {
           id="edit-image"
           name="image"
           type="file"
+          ref={imageInputRef}
           accept="image/jpeg,image/png,image/webp"
           onChange={validateImage}
           className="w-full text-sm text-fpn-snow/70 file:mr-3 file:rounded-lg file:border-0 file:bg-fpn-gold file:px-4 file:py-2 file:text-sm file:font-medium file:text-fpn-green"
